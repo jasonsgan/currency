@@ -1,11 +1,17 @@
 const httpClient = require('./httpClient');
 
 exports.getCurrency = async (context, country) => {
-    const url = `https://restcountries.com/v3.1/alpha/${country}?fields=currencies`;
+    const  encCountry = encodeURIComponent(country);
+    const url = `https://restcountries.com/v3.1/alpha/${encCountry}?fields=currencies`;
+    
     const res = await httpClient.get(context, url);
+    
     if (!res.ok) {
-        throw new Error(`Get Currency API failed for country ${country}`);
+        const err = new Error(`Invalid country: ${country}`);
+        err.status = 400;
+        throw err;
     }
+
     const currencies = res.body.currencies;
     const code = Object.keys(currencies)[0];
     const currency = currencies[code];

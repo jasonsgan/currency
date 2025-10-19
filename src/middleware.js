@@ -14,10 +14,10 @@ exports.apiLogger = (req, res, next) => {
     req.context = context;
 
     logger.info({
-        ...context,
         event: 'API START',
         method: req.method,
-        url: req.originalUrl
+        url: req.originalUrl,
+        ...context
     });
 
     const originalSend = res.send;
@@ -31,13 +31,13 @@ exports.apiLogger = (req, res, next) => {
         const duration = Number(end - start) / 1_000_000; // ns to ms
 
         logger.info({
-            ...context,
             event: 'API END',
             method: req.method,
             url: req.originalUrl,
             status: res.statusCode,
             body: res.body,
-            millis: Math.round(duration)
+            millis: Math.round(duration),
+            ...context
         });
     });
 
@@ -45,17 +45,17 @@ exports.apiLogger = (req, res, next) => {
 };
 
 exports.errorHandler = (err, req, res, next) => {
-    err.reqId = req.context.reqId;
-    err.cid = req.context.cid;
     logger.error({
-        ...req.context,
         event: 'ERROR',
+        status: err.status,
         message: err.message,
-        stack: err.stack
+        stack: err.stack,
+        ...req.context
     });
 
-    const status = 500;
-    res.status(status).json({ status, message: "Error processing request" });
+    const status = err.status || 500;
+    const message = err.message || 'Error processing request';
+    res.status(status).json({ status, message });
 };
 
 exports.invalidRouteHandler = (req, res, next) => {

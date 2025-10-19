@@ -8,10 +8,10 @@ const call = async (context, url, method, headers = {}, body) => {
     const start = process.hrtime.bigint();
 
     logger.info({
-        ...context,
         event: 'HTTP START',
         method,
-        url
+        url,
+        ...context
     })
 
     const options = {
@@ -40,13 +40,13 @@ const call = async (context, url, method, headers = {}, body) => {
     const duration = Number(end - start) / 1_000_000; // ns to ms
 
     logger.info({
-        ...context,
         event: 'HTTP END',
         method,
         url,
         status,
         body: text,
-        millis: Math.round(duration)
+        millis: Math.round(duration),
+        ...context
     });
 
     return {
