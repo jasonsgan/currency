@@ -1,4 +1,4 @@
-
+const logger = require('./logger'); 
 
 exports.get = async (context, url) => {
     return await call(context, url, 'GET');
@@ -7,9 +7,9 @@ exports.get = async (context, url) => {
 const call = async (context, url, method, headers = {}, body) => {
     const start = process.hrtime.bigint();
 
-    console.log({
+    logger.info({
         ...context,
-        type: 'API-SEND',
+        event: 'HTTP START',
         method,
         url
     })
@@ -39,9 +39,9 @@ const call = async (context, url, method, headers = {}, body) => {
     const end = process.hrtime.bigint();
     const duration = Number(end - start) / 1_000_000; // ns to ms
 
-    console.log({
+    logger.info({
         ...context,
-        type: 'API-RECV',
+        event: 'HTTP END',
         method,
         url,
         status,

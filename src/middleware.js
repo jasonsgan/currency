@@ -1,32 +1,42 @@
 
 const { uuidv7 } = require('uuidv7');
+const logger = require('./logger'); 
 
 exports.apiLogger = (req, res, next) => {
+
     const start = process.hrtime.bigint();
 
     const context = {
+        endpoint: req.method + ' ' + req.path,
         cid: req.get('X-Correlation-ID') || uuidv7(),
-        reqId: uuidv7(),
+        reqId: uuidv7()
     }
     req.context = context;
 
-    console.log({
+    logger.info({
         ...context,
-        type: 'API-IN',
+        event: 'API START',
         method: req.method,
-        path: req.originalUrl
+        url: req.originalUrl
     });
+
+    const originalSend = res.send;
+    res.send = (body) => {
+        res.body = body;
+        originalSend.call(res, body);
+    };
     
     res.on('finish', () => {
         const end = process.hrtime.bigint();
         const duration = Number(end - start) / 1_000_000; // ns to ms
 
-        console.log({
+        logger.info({
             ...context,
-            type: 'API-OUT',
+            event: 'API END',
             method: req.method,
-            path: req.originalUrl,
+            url: req.originalUrl,
             status: res.statusCode,
+            body: res.body,
             millis: Math.round(duration)
         });
     });
@@ -35,13 +45,17 @@ exports.apiLogger = (req, res, next) => {
 };
 
 exports.errorHandler = (err, req, res, next) => {
-    console.log({
-        type: 'ERROR',
+    err.reqId = req.context.reqId;
+    err.cid = req.context.cid;
+    logger.error({
         ...req.context,
-        error: err
+        event: 'ERROR',
+        message: err.message,
+        stack: err.stack
     });
+
     const status = 500;
-    res.status(status).json({ status, message: 'Error processing request' });
+    res.status(status).json({ status, message: "Error processing request" });
 };
 
 exports.invalidRouteHandler = (req, res, next) => {

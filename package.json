@@ -10,6 +10,9 @@
   "description": "",
   "dependencies": {
     "express": "^5.1.0",
+    "pino": "^10.1.0",
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.1.2",
     "uuidv7": "^1.0.2"
   }
 }
