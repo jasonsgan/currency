@@ -1,6 +1,7 @@
 
 const { uuidv7 } = require('uuidv7');
 const logger = require('./logger'); 
+const { InvalidRequestError, InvalidRouteError } = require('./errors');
 
 exports.apiLogger = (req, res, next) => {
 
@@ -45,20 +46,34 @@ exports.apiLogger = (req, res, next) => {
 };
 
 exports.errorHandler = (err, req, res, next) => {
-    logger.error({
-        event: 'ERROR',
-        status: err.status,
-        message: err.message,
-        stack: err.stack,
-        ...req.context
-    });
-
-    const status = err.status || 500;
-    const message = err.message || 'Error processing request';
-    res.status(status).json({ status, message });
+    if (err instanceof InvalidRequestError) {
+        logger.warn({
+            event: 'INVALID REQUEST',
+            status: err.status,
+            message: err.message,
+            ...req.context
+        });
+        const status = err.status;
+        const message = err.message;
+        res.status(status).json({ status, message });
+    } else {
+        logger.error({
+            event: 'ERROR',
+            status: err.status,
+            message: err.message,
+            stack: err.stack,
+            ...req.context
+        });
+        const status = 500;
+        const message = 'System error'
+        res.status(status).json({ status, message });
+    }
 };
 
 exports.invalidRouteHandler = (req, res, next) => {
-    res.message = 'Invalid route';
-    res.status(404).send( { status: 404, message: "Invalid route" });
+    const context = req.context;
+    if (context) {
+        delete context.endpoint;
+    }
+    throw new InvalidRouteError(req.method, req.originalUrl);
 };

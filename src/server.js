@@ -16,8 +16,8 @@ app.get("/currencies", async (req, res) => {
     res.json(currency);
 });
 
-app.use(errorHandler);
 app.use(invalidRouteHandler);
+app.use(errorHandler);
 
 app.listen(port, () => {
     logger.info({
