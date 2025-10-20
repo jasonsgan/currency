@@ -33,11 +33,17 @@ const call = async (context, url, method, headers = {}, body) => {
         }
     });
     
-    const status = response.status;
-    const text = await response.text();
+    let status = response.status;
+    let text = await response.text();
 
     const end = process.hrtime.bigint();
     const duration = Number(end - start) / 1_000_000; // ns to ms
+
+    // pretend server returned bad gateway
+    if (url.includes('zzz')) {
+        status = 502;
+        text = "Bad Gateway";
+    }
 
     logger.info({
         event: 'HTTP END',
@@ -51,7 +57,7 @@ const call = async (context, url, method, headers = {}, body) => {
 
     return {
         ok: response.ok,
-        status: response.status,
+        status,
         body: parseJson(text)
     };
 }

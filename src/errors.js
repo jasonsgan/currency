@@ -13,11 +13,10 @@ class InvalidRouteError extends InvalidRequestError {
     }
 }
 
-class SystemError extends Error {
-    constructor() {
-        super('System error');
-        this.status = 500;
+class UnexpectedHttpStatusError extends Error {
+    constructor(status) {
+        super(`Unexpected HTTP status: ${status}`);
     }
 }
 
-module.exports = { InvalidRequestError, InvalidRouteError, SystemError };
+module.exports = { InvalidRequestError, InvalidRouteError, UnexpectedHttpStatusError };
