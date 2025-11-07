@@ -3,7 +3,7 @@ const pino = require('pino');
 const logger = pino({
     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
     transport: {
-        target: 'pino-pretty',
+        target: 'pino/file',
         options: {
             translateTime: 'yyyy-mm-dd HH:MM:ss Z',
             colorize: true,

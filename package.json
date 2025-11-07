@@ -1,5 +1,5 @@
 {
-  "name": "currency",
+  "name": "traning-api",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.1.0",
     "pino": "^10.1.0",
     "pino-http": "^11.0.0",

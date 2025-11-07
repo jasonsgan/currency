@@ -14,12 +14,22 @@ exports.apiLogger = (req, res, next) => {
     }
     req.context = context;
 
-    logger.info({
-        event: 'API START',
-        method: req.method,
-        url: req.originalUrl,
-        ...context
-    });
+    if (req.body) {
+        logger.info({
+            event: 'API START',
+            method: req.method,
+            url: req.originalUrl,
+            body: req.body,
+            ...context
+        });
+    } else {
+        logger.info({
+            event: 'API START',
+            method: req.method,
+            url: req.originalUrl,
+            ...context
+        });
+    }
 
     const originalSend = res.send;
     res.send = (body) => {
@@ -46,14 +56,14 @@ exports.apiLogger = (req, res, next) => {
 };
 
 exports.errorHandler = (err, req, res, next) => {
-    if (err instanceof InvalidRequestError) {
+    if (err instanceof InvalidRequestError || err instanceof SyntaxError) {
         logger.warn({
             event: 'INVALID REQUEST',
-            status: err.status,
+            status: 400,
             message: err.message,
             ...req.context
         });
-        const status = err.status;
+        const status = 400;
         const message = err.message;
         res.status(status).json({ status, message });
     } else {
