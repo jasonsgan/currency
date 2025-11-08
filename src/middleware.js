@@ -55,6 +55,13 @@ exports.apiLogger = (req, res, next) => {
     next();
 };
 
+exports.jsonParser = (req, res, next) => {
+    if (req.body) {
+        req.body = JSON.parse(req.body);
+    }
+    next();
+}
+
 exports.errorHandler = (err, req, res, next) => {
     if (err instanceof InvalidRequestError || err instanceof SyntaxError) {
         logger.warn({
