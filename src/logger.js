@@ -1,15 +1,14 @@
 const pino = require('pino');
 
 const logger = pino({
+    base: null,
+    timestamp: pino.stdTimeFunctions.isoTime,
     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-    transport: {
-        target: 'pino/file',
-        options: {
-            translateTime: 'yyyy-mm-dd HH:MM:ss Z',
-            colorize: true,
-            ignore: 'pid,hostname',
+    formatters: {
+        level(label) {
+            return { level: label };
         },
-    },
+    }
 });
 
 module.exports = logger;
