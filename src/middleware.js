@@ -65,7 +65,7 @@ exports.jsonParser = (req, res, next) => {
 exports.errorHandler = (err, req, res, next) => {
     if (err instanceof InvalidRequestError || err instanceof SyntaxError) {
         logger.warn({
-            event: 'INVALID REQUEST',
+            event: 'BAD REQUEST',
             status: 400,
             message: err.message,
             ...req.context

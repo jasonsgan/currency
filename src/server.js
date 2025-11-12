@@ -18,33 +18,47 @@ app.get("/api/health", (req, res) => {
 app.use(apiLogger);
 app.use(jsonParser);
 
+/*
 app.get("/api/currencies", async (req, res) => {
     const country = req.query.country;
+    if (typeof country !== 'string' || country.length === 0) {
+        throw new InvalidRequestError(`URL parameter 'country' must be a non-empty string`);
+    }
     const currency = await getCurrency(req.context, country);
     res.json(currency);
 });
+*/
 
 app.post("/api/hash", async (req, res) => {
-    let plaintext = req.body.plaintext;
-    /*
-    if (req.body) {
-        const body = JSON.parse(req.body);
-        plaintext = body.plaintext;
-    }
-    */
+    const plaintext = req.body.plaintext;
     if (typeof plaintext !== 'string' || plaintext.length === 0) {
-        throw new InvalidRequestError(`Invalid plaintext: ${plaintext}`);
+        throw new InvalidRequestError(`JSON property 'plaintext' must be a non-empty string`);
     }
     const hash = await bcrypt.hash(plaintext, 11);
-    res.send( { status: 200, plaintext, hash } );
+    res.send({ 
+        status: 200, 
+        plaintext, 
+        hash, 
+        algo: 'bcrypt', 
+        rounds: 11
+    });
 });
 
 app.use(invalidRouteHandler);
 app.use(errorHandler);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     logger.info({
         event: 'SERVER START',
-        port
+        message: `Server listening on port ${port}`
     });
+});
+
+server.on('error', (err) => {
+    logger.error({
+        event: 'ERROR',
+         message: err.message,
+        stack: err.stack,
+    });
+    process.exit(1);
 });

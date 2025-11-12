@@ -8,7 +8,7 @@ exports.getCurrency = async (context, country) => {
     const res = await httpClient.get(context, url);
     
     if (res.status === 404) { // country not found
-        throw new InvalidRequestError(`Invalid country: ${country}`);
+        throw new InvalidRequestError(`Country not found: ${country}`);
     } else if (res.status !== 200) { 
         throw new UnexpectedHttpStatusError(res.status);
     }
