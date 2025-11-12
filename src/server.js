@@ -57,8 +57,28 @@ const server = app.listen(port, () => {
 server.on('error', (err) => {
     logger.error({
         event: 'ERROR',
-         message: err.message,
+        message: err.message,
         stack: err.stack,
     });
     process.exit(1);
+});
+
+process.on('SIGINT', () => {
+    server.close(() => {
+        logger.info({
+            event: "SERVER END",
+            message: "Received SIGINT"
+        });
+        process.exit(0);
+    });
+});
+
+process.on('SIGTERM', () => {
+    server.close(() => {
+        logger.info({
+            event: "SERVER END",
+            message: "Received SIGTERM"
+        });
+        process.exit(0);
+    });
 });

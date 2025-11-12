@@ -16,5 +16,7 @@ EXPOSE 8000
 # Use production node environment
 ENV NODE_ENV=production
 
+STOPSIGNAL SIGINT
+
 # Start the application
 CMD ["node", "src/server.js"]
