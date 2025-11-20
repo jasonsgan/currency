@@ -4,7 +4,7 @@ const logger = require('./logger');
 const { apiLogger, jsonParser, errorHandler, invalidRouteHandler } = require('./middleware');
 const { InvalidRequestError } = require('./errors');
 
-const configureExpressApp = () => {
+const configureExpress = () => {
     const app = express();
 
     app.use(express.text({ type: '*/*' }));
@@ -38,9 +38,7 @@ const configureExpressApp = () => {
     return app;
 }
 
-const configureExpressServer = (app) => {
-    const port = 8000;
-
+const startServer = (app, port) => {
     const server = app.listen(port, () => {
         logger.info({
             event: 'SERVER START',
@@ -68,11 +66,15 @@ const configureExpressServer = (app) => {
     });
 }
 
-const app = configureExpressApp();
-
-if (process.env.LAMBDA_TASK_ROOT) {
+const exportLambdaHandler = (app) => {
     const serverless = require('serverless-http');
     module.exports.handler = serverless(app);
+}
+
+const app = configureExpress();
+
+if (process.env.LAMBDA_TASK_ROOT) {
+    exportLambdaHandler(app)
 } else {
-    configureExpressServer(app);
+    startServer(app, 8000);
 }
