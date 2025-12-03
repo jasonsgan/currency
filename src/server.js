@@ -22,6 +22,9 @@ const configureExpress = () => {
         if (typeof plaintext !== 'string' || plaintext.length === 0) {
             throw new InvalidRequestError(`JSON property 'plaintext' must be a non-empty string`);
         }
+        if (plaintext === 'error') {
+            throw new Error('Simulated server error');
+        }
         const hash = await bcrypt.hash(plaintext, rounds);
         res.send({ 
             status: 200, 
@@ -68,7 +71,7 @@ const startServer = (app, port) => {
 
 const exportLambdaHandler = (app) => {
     const serverless = require('serverless-http');
-    module.exports.handler = serverless(app);
+    exports.handler = serverless(app);
 }
 
 const app = configureExpress();
